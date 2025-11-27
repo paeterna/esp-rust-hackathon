@@ -1,0 +1,15 @@
+[package]
+name = "hello_test"
+version = "0.1.0"
+description = "test "
+authors = ["omar"]
+license = "MIT"
+edition = "2024"
+
+[dependencies]
+color-eyre = "0.6.3"
+crossterm = "0.29.0"
+ratatui = "0.30.0-beta"
+serialport = "4.6.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"

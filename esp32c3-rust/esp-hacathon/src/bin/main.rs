@@ -11,8 +11,7 @@ use esp_hal::main;
 use esp_hal::time::{Duration, Instant};
 use esp_hal::timer::timg::TimerGroup;
 use esp_hal::uart::Uart;
-use esp_radio::ble::controller::BleConnector;
-use esp_radio::wifi::ScanConfig;
+use esp_radio::wifi::{ScanConfig, WifiMode};
 use core::fmt::Write;
 
 #[panic_handler]
@@ -42,16 +41,39 @@ fn main() -> ! {
         esp_hal::interrupt::software::SoftwareInterruptControl::new(peripherals.SW_INTERRUPT);
     esp_rtos::start(timg0.timer0, sw_interrupt.software_interrupt0);
     let radio_init = esp_radio::init().expect("Failed to initialize Wi-Fi/BLE controller");
+
+    // Initialize UART for USB serial communication FIRST for debug output
+    let mut uart0 = Uart::new(peripherals.UART0, Default::default()).unwrap();
+
+    let _ = writeln!(uart0, "{{\"status\":\"Creating WiFi controller...\"}}");
+
     let (mut wifi_controller, _interfaces) =
         esp_radio::wifi::new(&radio_init, peripherals.WIFI, Default::default())
             .expect("Failed to initialize Wi-Fi controller");
-    let _connector = BleConnector::new(&radio_init, peripherals.BT, Default::default());
 
-    // Initialize UART for USB serial communication
-    let mut uart0 = Uart::new(peripherals.UART0, Default::default()).unwrap();
+    let _ = writeln!(uart0, "{{\"status\":\"WiFi controller created\"}}");
 
-    // Start WiFi in station mode for scanning
-    wifi_controller.start().expect("Failed to start WiFi");
+    // Configure WiFi in station mode for scanning
+    match wifi_controller.set_mode(WifiMode::Sta) {
+        Ok(_) => {
+            let _ = writeln!(uart0, "{{\"status\":\"WiFi mode set to Station\"}}");
+        }
+        Err(_) => {
+            let _ = writeln!(uart0, "{{\"error\":\"Failed to set WiFi mode\"}}");
+        }
+    }
+
+    // Start WiFi controller
+    match wifi_controller.start() {
+        Ok(_) => {
+            let _ = writeln!(uart0, "{{\"status\":\"WiFi started in station mode\"}}");
+        }
+        Err(_) => {
+            let _ = writeln!(uart0, "{{\"error\":\"Failed to start WiFi\"}}");
+        }
+    }
+
+    let _ = writeln!(uart0, "{{\"status\":\"WiFi Motion Sensor Starting...\"}}");
 
     let mut counter = 0u32;
     let mut last_scan = Instant::now();
@@ -60,17 +82,17 @@ fn main() -> ! {
     let mut baseline_rssi: [i8; 10] = [-100; 10];
     let mut baseline_ssid: [Option<heapless::String<32>>; 10] = [const { None }; 10];
 
-    let _ = writeln!(uart0, "{{\"status\":\"WiFi Motion Sensor Started\"}}");
-
     loop {
         let now = Instant::now();
 
-        // Scan for WiFi networks every 1 second
-        if last_scan.elapsed() >= Duration::from_millis(1000) {
+        // Scan for WiFi networks every 2 seconds
+        if last_scan.elapsed() >= Duration::from_millis(2000) {
+            let _ = writeln!(uart0, "{{\"status\":\"Starting scan...\"}}");
+
             // Create scan config
             let scan_config = ScanConfig::default();
 
-            // Perform WiFi scan
+            // Perform WiFi scan (try without calling start() first)
             match wifi_controller.scan_with_config(scan_config) {
                 Ok(scan_results) => {
                     let mut motion_detected = false;

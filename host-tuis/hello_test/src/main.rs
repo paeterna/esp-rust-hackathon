@@ -1,6 +1,6 @@
 use ratatui::{DefaultTerminal, Frame};
 use ratatui::layout::{Constraint, Direction, Layout};
-use ratatui::widgets::{Block, Borders, List, ListItem, Paragraph, BarChart, Gauge};
+use ratatui::widgets::{Block, Borders, List, ListItem, Paragraph, Gauge};
 use ratatui::style::{Color, Modifier, Style};
 use ratatui::text::{Line, Span};
 use serde::{Deserialize, Serialize};
@@ -40,14 +40,25 @@ fn main() -> color_eyre::Result<()> {
         return Ok(());
     }
 
+    // Filter out system ports (debug-console, Bluetooth)
+    let esp_ports: Vec<_> = ports
+        .iter()
+        .filter(|p| {
+            !p.port_name.contains("debug-console")
+            && !p.port_name.contains("Bluetooth")
+        })
+        .collect();
+
     println!("Available serial ports:");
     for (i, p) in ports.iter().enumerate() {
-        println!("  [{}] {}", i, p.port_name);
+        let marker = if esp_ports.contains(&p) { " [ESP32?]" } else { "" };
+        println!("  [{}] {}{}", i, p.port_name, marker);
     }
 
-    // Use first port or specified port
+    // Use command line arg, or auto-detect ESP32 port, or use first port
     let port_name = std::env::args()
         .nth(1)
+        .or_else(|| esp_ports.first().map(|p| p.port_name.clone()))
         .unwrap_or_else(|| ports[0].port_name.clone());
 
     println!("Using port: {}", port_name);

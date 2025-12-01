@@ -24,17 +24,17 @@ async fn main() -> Result<()> {
         .unwrap_or_else(|| {
             // Try to auto-detect USB serial device
             if cfg!(target_os = "macos") {
-                // On macOS, try to find tty.usbserial device (better for bidirectional communication)
+                // On macOS, prefer the cu.* device to avoid modem-control resets
                 if let Ok(entries) = std::fs::read_dir("/dev") {
                     for entry in entries.flatten() {
                         let name = entry.file_name();
                         let name_str = name.to_string_lossy();
-                        if name_str.starts_with("tty.usbserial") {
+                        if name_str.starts_with("cu.usbserial") {
                             return format!("/dev/{}", name_str);
                         }
                     }
                 }
-                "/dev/tty.usbserial-110".to_string() // Fallback for macOS
+                "/dev/cu.usbserial-110".to_string() // Fallback for macOS
             } else {
                 "/dev/ttyUSB0".to_string() // Fallback for Linux
             }

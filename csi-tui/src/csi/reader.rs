@@ -1,11 +1,10 @@
-use color_eyre::Result;
-use std::process::Stdio;
-use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader, stdin};
-use tokio::process::Command;
-use tokio::sync::mpsc;
-use tokio_serial::SerialPortBuilderExt;
 use crate::csi::frame::CsiFrame;
 use crate::csi::parser::CsiParser;
+use color_eyre::Result;
+use std::io::ErrorKind;
+use tokio::io::{stdin, AsyncBufReadExt, AsyncWriteExt, BufReader};
+use tokio::sync::mpsc;
+use tokio_serial::SerialPortBuilderExt;
 
 pub struct CsiReader {
     device_path: String,
@@ -97,11 +96,12 @@ impl CsiReader {
             let mut line_count = 0;
             let mut byte_count = 0;
             let mut prompt_sent = false;
+            let mut line_bytes = Vec::with_capacity(256);
 
             eprintln!("DEBUG: Serial reader task started, waiting for prompt");
 
             loop {
-                let mut line_bytes = Vec::new();
+                line_bytes.clear();
                 match buf_reader.read_until(b'\n', &mut line_bytes).await {
                     Ok(0) => {
                         eprintln!("DEBUG: Serial EOF after {} lines, {} bytes", line_count, byte_count);
@@ -140,6 +140,14 @@ impl CsiReader {
                         }
                     }
                     Err(e) => {
+                        if e.kind() == ErrorKind::InvalidData {
+                            // Happens when bootloader or binary noise is on the line; skip it
+                            eprintln!(
+                                "DEBUG: Serial read invalid UTF-8, discarding {} bytes",
+                                line_bytes.len()
+                            );
+                            continue;
+                        }
                         eprintln!("DEBUG: Serial read error: {}", e);
                         // Don't break on errors, just continue
                         continue;

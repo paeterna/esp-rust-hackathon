@@ -1,0 +1,89 @@
+warning: unused import: `std::process::Stdio`
+ --> src/csi/reader.rs:2:5
+  |
+2 | use std::process::Stdio;
+  |     ^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `AsyncReadExt`
+ --> src/csi/reader.rs:3:34
+  |
+3 | use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader, stdin};
+  |                                  ^^^^^^^^^^^^
+
+warning: unused import: `tokio::process::Command`
+ --> src/csi/reader.rs:4:5
+  |
+4 | use tokio::process::Command;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+  --> src/csi/reader.rs:74:13
+   |
+74 |         let mut port = tokio_serial::new(&self.device_path, 115200)
+   |             ----^^^^
+   |             |
+   |             help: remove this `mut`
+   |
+   = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: `csi-tui` (bin "csi-tui") generated 4 warnings (run `cargo fix --bin "csi-tui" -p csi-tui` to apply 4 suggestions)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/csi-tui`
+Using device: /dev/tty.usbserial-110
+DEBUG: Opening serial port: /dev/tty.usbserial-110
+DEBUG: Serial port opened successfully
+DEBUG: ESP32 should reset automatically on port open
+DEBUG: Serial reader task started, waiting for prompt
+DEBUG: Waiting for prompt signal...
+DEBUG: Line 1: ESP-ROM:esp32c3-api1-20210207
+DEBUG: Line 2: Build:Feb  7 2021
+DEBUG: Line 3: rst:0x1 (POWERON),boot:0xc (SPI_FAST_FLASH_BOOT)
+DEBUG: Line 4: SPIWP:0xee
+DEBUG: Line 5: mode:DIO, clock div:2
+DEBUG: Line 6: load:0x3fcd5820,len:0x1574
+DEBUG: Line 7: load:0x403cc710,len:0xc34
+DEBUG: Line 8: load:0x403ce710,len:0x2f64
+DEBUG: Line 9: entry 0x403cc71a
+DEBUG: Line 10: I (32) boot: ESP-IDF v5.4.1-426-g3ad36321ea 2nd stage bootloader
+DEBUG: Line 11: I (32) boot: compile time Apr 24 2025 15:55:47
+DEBUG: Line 12: I (32) boot: chip revision: v0.4
+DEBUG: Line 13: I (33) boot: efuse block revision: v1.3
+DEBUG: Line 14: I (37) boot.esp32c3: SPI Speed      : 40MHz
+DEBUG: Line 15: I (41) boot.esp32c3: SPI Mode       : DIO
+DEBUG: Line 16: I (45) boot.esp32c3: SPI Flash Size : 4MB
+DEBUG: Line 17: I (48) boot: Enabling RNG early entropy source...
+DEBUG: Line 18: I (53) boot: Partition Table:
+DEBUG: Line 19: I (55) boot: ## Label            Usage          Type ST Offset   Length
+DEBUG: Line 20: I (62) boot:  0 nvs              WiFi data        01 02 00009000 00006000
+DEBUG: Line 21: I (68) boot:  1 phy_init         RF data          01 01 0000f000 00001000
+DEBUG: Line 22: I (75) boot:  2 factory          factory app      00 00 00010000 003f0000
+DEBUG: Line 23: I (81) boot: End of partition table
+DEBUG: Line 24: I (84) esp_image: segment 0: paddr=00010020 vaddr=3c000020 size=31e10h (204304) map
+DEBUG: Line 25: I (137) esp_image: segment 1: paddr=00041e38 vaddr=3fc87580 size=024c8h (  9416) load
+DEBUG: Line 26: I (139) esp_image: segment 2: paddr=00044308 vaddr=40380000 size=07580h ( 30080) load
+DEBUG: Line 27: I (148) esp_image: segment 3: paddr=0004b890 vaddr=00000000 size=04788h ( 18312)
+DEBUG: Line 28: I (152) esp_image: segment 4: paddr=00050020 vaddr=42040020 size=9e1c4h (647620) map
+DEBUG: Line 29: I (299) boot: Loaded app from partition at offset 0x10000
+DEBUG: Line 30: I (300) boot: Disabling RNG early entropy source...
+DEBUG: Line 31: ******* Welcome to the CSI Collection CLI utility! *******
+DEBUG: Line 32: Available Commands:
+DEBUG: Line 33: set-wifi            Configure WiFi settings (e.g., mode, SSID visibility).
+DEBUG: Line 34: set-traffic         Configure traffic-related parameters (e.g. interval).
+DEBUG: Line 35: set-csi             Configure CSI feature flags (e.g., LLTF, HTLTF).
+DEBUG: Line 36: start               Start the CSI collection process with a defined duration.
+DEBUG: Line 37: show-config         Display the current configuration settings.
+DEBUG: Found prompt at line 42! Signaling to send commands
+DEBUG: Prompt received! Sending initialization commands...
+DEBUG: Sending command: set-wifi --mode=sniffing
+DEBUG: Sending command: set-csi
+DEBUG: Sending command: start
+DEBUG: All initialization commands sent
+DEBUG: Line 50: mode:DIO, clock div:2
+DEBUG: Line 100: I (32) boot: ESP-IDF v5.4.1-426-g3ad36321ea 2nd stage bootloader
+DEBUG: Line 150: I (41) boot.esp32c3: SPI Mode       : DIO
+DEBUG: Line 200: I (62) boot:  0 nvs              WiFi data        01 02 00009000 00006000
+DEBUG: Line 250: I (137) esp_image: segment 1: paddr=00041e38 vaddr=3fc87580 size=024c8h (  9416) load
+DEBUG: Serial read error: stream did not contain valid UTF-8
+DEBUG: Serial reader task ended

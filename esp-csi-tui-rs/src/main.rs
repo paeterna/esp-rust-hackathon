@@ -335,42 +335,50 @@ impl App {
 
         // Log to Rerun if enabled
         if let Some(ref rec) = self.rec {
+            use rerun::components::Color;
+            
             // Set timeline
             rec.set_time_sequence("frame", sample.timestamp as i64);
 
-            // Log amplitude data for all subcarriers
-            let amplitudes: Vec<f64> = sample.amplitude().iter().map(|&a| a as f64).collect();
-            let _ = rec.log(
-                "csi/amplitude_scalar",
-                &rerun::Scalar::new(amplitudes[0])
-            );
+            // Log amplitude data for all subcarriers as a line series
+            let amplitudes = sample.amplitude();
 
-            // Log phase data
-            let phases: Vec<f64> = sample.phase().iter().map(|&p| p as f64).collect();
+            // Log mean amplitude as scalar
+            let mean_amp = amplitudes.iter().sum::<f32>() / amplitudes.len() as f32;
             let _ = rec.log(
-                "csi/phase_scalar",
-                &rerun::Scalar::new(phases[0])
+                "csi/mean_amplitude",
+                &rerun::archetypes::Scalars::new(vec![mean_amp as f64])
             );
 
             // Log RSSI
             let _ = rec.log(
                 "csi/rssi",
-                &rerun::Scalar::new(sample.rssi as f64)
+                &rerun::archetypes::Scalars::new(vec![sample.rssi as f64])
             );
 
-            // Log subcarrier amplitudes as a line series
-            let _points: Vec<(f64, f64)> = amplitudes.iter().enumerate()
-                .map(|(i, &amp)| (i as f64, amp))
+            // Log amplitude spectrum as line series
+            let amp_points: Vec<[f32; 2]> = amplitudes.iter().enumerate()
+                .map(|(i, &amp)| [i as f32, amp])
                 .collect();
-
+            
             let _ = rec.log(
                 "csi/amplitude_spectrum",
-                &rerun::SeriesLine::new()
-                    .with_name("Amplitude")
+                &rerun::archetypes::LineStrips2D::new([amp_points])
+                    .with_colors([Color::from_rgb(0, 255, 255)])
             );
-        }
 
-        // Run motion detection
+            // Log phase data
+            let phases = sample.phase();
+            let phase_points: Vec<[f32; 2]> = phases.iter().enumerate()
+                .map(|(i, &ph)| [i as f32, ph])
+                .collect();
+            
+            let _ = rec.log(
+                "csi/phase_spectrum",
+                &rerun::archetypes::LineStrips2D::new([phase_points])
+                    .with_colors([Color::from_rgb(255, 0, 255)])
+            );
+        }        // Run motion detection
         let previous = if self.csi_samples.len() > 0 {
             Some(&self.csi_samples[self.csi_samples.len() - 1])
         } else {

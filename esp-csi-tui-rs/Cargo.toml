@@ -17,7 +17,7 @@ num-complex = "0.4"
 # Data storage
 csv = "1.3"
 serde = { version = "1.0", features = ["derive"] }
-rerun = "0.18"
+rerun = "0.27.2"
 
 # Error handling
 anyhow = "1.0"

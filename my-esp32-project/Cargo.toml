@@ -2,22 +2,22 @@
 name = "my-esp32-project"
 version = "0.1.0"
 edition = "2021"
-
-[package.metadata.esp-idf-sys]
-mcu = "esp32c3"
+resolver = "2"
 
 [dependencies]
-esp-hal = { version = "1.0", features = ["esp32c3", "unstable"] }
-esp-println = { version = "0.13", features = ["esp32c3"] }
-esp-backtrace = { version = "0.15", features = ["esp32c3", "panic-handler", "println"] }
-esp-bootloader-esp-idf = { version = "0.1" }
+esp-idf-svc = { version = "0.51", default-features = false, features = ["binstart", "alloc"] }
+esp-idf-hal = "0.45"
+esp-idf-sys = "0.36"
+log = "0.4"
+anyhow = "1.0"
 
 [build-dependencies]
-esp-build = "0.2"
+embuild = "0.33"
 
 [profile.dev]
 opt-level = "z"
 
 [profile.release]
-opt-level = "z"
+opt-level = "s"
 lto = true
+

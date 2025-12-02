@@ -8,3 +8,21 @@ target/
 
 # MSVC Windows builds of rustc generate these, which store debugging information
 *.pdb
+
+# ESP-IDF build artifacts
+.embuild/
+build/
+sdkconfig
+sdkconfig.old
+managed_components/
+dependencies.lock
+
+# Backup files
+*.backup
+*.log
+*.tmp
+
+# Editor files
+.vscode/
+*.swp
+*.swo

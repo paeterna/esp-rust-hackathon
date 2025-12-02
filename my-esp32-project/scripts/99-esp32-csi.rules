@@ -1,0 +1,10 @@
+# udev rule for ESP32-C3 CSI device
+# This creates a consistent symlink /dev/esp32-csi for your ESP32 device
+# Vendor ID: 10c4 (Silicon Labs CP210x UART Bridge)
+# Product ID: ea60
+
+# Match by vendor/product ID
+SUBSYSTEM=="tty", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", SYMLINK+="esp32-csi", MODE="0666"
+
+# Or match by serial number for a specific device
+# SUBSYSTEM=="tty", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", ATTRS{serial}=="34a298299f71f0119a15029f1045c30f", SYMLINK+="esp32-csi", MODE="0666"

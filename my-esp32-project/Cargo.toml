@@ -16,8 +16,10 @@ embuild = "0.33"
 
 [profile.dev]
 opt-level = "z"
+debug = false
 
 [profile.release]
 opt-level = "s"
 lto = true
+strip = true
 

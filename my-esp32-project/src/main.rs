@@ -161,17 +161,17 @@ fn main() -> anyhow::Result<()> {
     // Initialize ESP-IDF services
     esp_idf_svc::sys::link_patches();
     
-    // Disable all logging to keep UART clean for CSI data only
-    unsafe {
-        esp_idf_sys::esp_log_level_set(
-            "*\0".as_ptr() as *const core::ffi::c_char, 
-            esp_idf_sys::esp_log_level_t_ESP_LOG_NONE
-        );
-    }
-
+    log::info!("Starting ESP32 CSI application...");
+    
     let peripherals = Peripherals::take()?;
+    log::info!("Peripherals initialized");
+    log::info!("Peripherals initialized");
+    
     let sys_loop = EspSystemEventLoop::take()?;
+    log::info!("Event loop created");
+    
     let nvs = EspDefaultNvsPartition::take()?;
+    log::info!("NVS initialized");
 
     // Configure UART0 for CSI data transmission
     let config = config::Config::new().baudrate(Hertz(115_200));
@@ -183,17 +183,24 @@ fn main() -> anyhow::Result<()> {
         Option::<gpio::Gpio1>::None,
         &config,
     )?;
+    log::info!("UART configured");
 
     // Store UART handle globally for callback access
     unsafe {
         UART_HANDLE = Some(&mut uart as *mut UartDriver);
     }
 
+    log::info!("Initializing WiFi...");
+    
     // Initialize WiFi in station mode
     let mut wifi = BlockingWifi::wrap(
         EspWifi::new(peripherals.modem, sys_loop.clone(), Some(nvs))?,
         sys_loop,
     )?;
+    
+    log::info!("WiFi initialized successfully");
+
+    log::info!("WiFi initialized successfully");
 
     // Configure WiFi for promiscuous mode (receive all packets)
     let wifi_config = Configuration::Client(ClientConfiguration {
@@ -202,10 +209,18 @@ fn main() -> anyhow::Result<()> {
         ..Default::default()
     });
     
+    log::info!("Setting WiFi configuration...");
     wifi.set_configuration(&wifi_config)?;
+    
+    log::info!("Starting WiFi...");
     wifi.start()?;
+    
+    log::info!("WiFi started successfully");
+
+    log::info!("WiFi started successfully");
 
     // Enable CSI
+    log::info!("Enabling CSI...");
     unsafe {
         // Configure CSI parameters
         let mut csi_config = esp_idf_sys::wifi_csi_config_t {
@@ -229,6 +244,8 @@ fn main() -> anyhow::Result<()> {
         // Set WiFi to promiscuous mode to capture all packets
         esp_idf_sys::esp_wifi_set_promiscuous(true);
     }
+    
+    log::info!("CSI enabled, entering main loop...");
 
     // Main loop - the CSI callback will handle data transmission
     loop {

@@ -5,6 +5,7 @@ const MAGIC_HEADER: [u8; 2] = [0xC5, 0x1A];
 
 #[repr(u8)]
 #[derive(Debug, Clone, Copy)]
+#[allow(dead_code)]
 pub enum MessageType {
     // Commands (Host → ESP32)
     CmdPing = 0x01,
@@ -14,7 +15,7 @@ pub enum MessageType {
     CmdSetChannel = 0x20,
     CmdGetStatus = 0x30,
     CmdReset = 0xFF,
-    
+
     // Responses (ESP32 → Host)
     RspAck = 0x81,
     RspNak = 0x82,
@@ -27,8 +28,11 @@ pub enum MessageType {
 pub struct CsiDataPacket {
     pub timestamp: u32,
     pub rssi: i8,
+    #[allow(dead_code)]
     pub rate: u8,
+    #[allow(dead_code)]
     pub channel: u8,
+    #[allow(dead_code)]
     pub mac: [u8; 6],
     pub subcarriers: Vec<Complex<f32>>,
 }
@@ -75,6 +79,7 @@ impl ProtocolHandler {
         self.create_command(MessageType::CmdStopCsi, &[])
     }
 
+    #[allow(dead_code)]
     pub fn create_ping_command(&self) -> Vec<u8> {
         self.create_command(MessageType::CmdPing, &[])
     }
@@ -207,5 +212,6 @@ pub enum ParsedFrame {
     Nak,
     Status,
     Error,
+    #[allow(dead_code)]
     Unknown(u8),
 }
